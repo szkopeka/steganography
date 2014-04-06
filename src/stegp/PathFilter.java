@@ -10,7 +10,6 @@ public class PathFilter {
     public static String filename(String path) {
         int dot = path.lastIndexOf('.');
         int sep = path.lastIndexOf('\\');
-        System.out.println(dot + " " + sep);
         return path.substring(sep + 1, dot);
     }
 
