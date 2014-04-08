@@ -59,15 +59,15 @@ public class SteganographyView extends JFrame {
         this.pack();
         this.setLocationRelativeTo(null);
     }
-    
+
     JRadioButton getEncodeRadioButton() {
         return encodeRadioButton;
     }
-    
+
     JRadioButton getDecodeRadioButton() {
         return decodeRadioButton;
     }
- 
+
     void setOpenButtonText(String text) {
         openButton.setText(text);
     }
@@ -112,7 +112,7 @@ public class SteganographyView extends JFrame {
     void addCodeButtonListener(ActionListener a) {
         codeButton.addActionListener(a);
     }
-    
+
     public static void main(String[] args) {
         SteganographyModel model = new SteganographyModel();
         SteganographyView view = new SteganographyView();

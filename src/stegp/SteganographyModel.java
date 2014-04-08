@@ -8,7 +8,6 @@ import javax.swing.*;
 public class SteganographyModel {
 
     public static final String outputFormat = "png";
-    public static String outputPath = "C:\\Users\\Artur\\Documents\\NetBeansProjects\\steganography\\";
 
     public boolean encodeImage(String inPath, String inFilename, String inExt, String outPath, String outFilename, String message) {
         BufferedImage originalImage = readImage(makePathToImage(inPath, inFilename, inExt));
@@ -18,6 +17,9 @@ public class SteganographyModel {
 
     public String decodeImage(String inPath, String inFilename) {
         BufferedImage image = readImage(makePathToImage(inPath, inFilename, outputFormat));
+        if (image == null) {
+            return null;
+        }
         byte[] img = convertImageToBytes(image);
         byte[] text = decodeText(img);
         return (new String(text));

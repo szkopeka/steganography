@@ -5,10 +5,10 @@ import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class SteganographyController {
-    
+
     private SteganographyModel model;
     private SteganographyView view;
-    private String  outputFilename, inputPath, textToHide;
+    private String outputFilename, inputPath, textToHide;
 
     public SteganographyController(final SteganographyModel model, final SteganographyView view) {
         this.model = model;
@@ -19,6 +19,7 @@ public class SteganographyController {
                 view.manageFrameAccessibility(false);
                 outputFilename = JOptionPane.showInputDialog(view, "Proszę wpisać nazwę pliku wyjściowego");
                 view.manageFrameAccessibility(true);
+                view.toFront();
             }
         });
         view.addInsertTextButtonListener(new ActionListener() {
@@ -26,6 +27,7 @@ public class SteganographyController {
                 view.manageFrameAccessibility(false);
                 textToHide = JOptionPane.showInputDialog(view, "Proszę wpisać tekst do ukrycia w obrazku");
                 view.manageFrameAccessibility(true);
+                view.toFront();
             }
         });
         view.addOpenButtonListener(new ActionListener() {
@@ -42,6 +44,7 @@ public class SteganographyController {
                     inputPath = null;
                 }
                 view.manageFrameAccessibility(true);
+                view.toFront();
             }
         });
         view.addEncodeRadioButtonListener(new ActionListener() {
@@ -58,39 +61,50 @@ public class SteganographyController {
         });
         view.addCodeButtonListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                if (inputPath == null || inputPath.isEmpty()) {
+                if (isEmptyOrNull(inputPath)) {
                     JOptionPane.showMessageDialog(view, "Nie wybrano pliku źródłowego!", "Błąd", JOptionPane.ERROR_MESSAGE);
+                    view.toFront();
                     return;
                 } else if (view.getEncodeRadioButton().isSelected()) {
-                    if (textToHide == null || textToHide.isEmpty()) {
+                    if (isEmptyOrNull(textToHide)) {
                         JOptionPane.showMessageDialog(view, "Nie wpisano tekstu do ukrycia!", "Błąd", JOptionPane.ERROR_MESSAGE);
+                        view.toFront();
                         return;
-                    } else if (outputFilename == null || outputFilename.isEmpty()) {
+                    } else if (isEmptyOrNull(outputFilename)) {
                         JOptionPane.showMessageDialog(view, "Nie wybrano pliku wynikowego!", "Błąd", JOptionPane.ERROR_MESSAGE);
+                        view.toFront();
                         return;
                     }
                 }
                 String fulloutputPath = PathFilter.path(inputPath) + outputFilename + '.' + SteganographyModel.outputFormat;
-                
+
                 String inFilename = PathFilter.filename(inputPath);
                 String inPath = PathFilter.path(inputPath);
                 String inExt = PathFilter.extension(inputPath);
                 String outFilename = PathFilter.filename(fulloutputPath);
                 String outPath = PathFilter.path(fulloutputPath);
-                
+
                 if (view.getEncodeRadioButton().isSelected()) {
                     if (model.encodeImage(inPath, inFilename, inExt, outPath, outFilename, textToHide)) {
                         JOptionPane.showMessageDialog(view, "Zapis wiadomości zakończony powodzeniem!", "OK!", JOptionPane.INFORMATION_MESSAGE);
                         inputPath = null;
                         outputFilename = null;
                         textToHide = null;
+                        view.toFront();
                     }
                 } else {
-                    JOptionPane.showMessageDialog(view, model.decodeImage(inPath, inFilename), "Ukryta wiadomość", JOptionPane.INFORMATION_MESSAGE);
+                    String decryptedText = model.decodeImage(inPath, inFilename);
+                    if (decryptedText != null && !decryptedText.isEmpty()) {
+                        JOptionPane.showMessageDialog(view, decryptedText, "Ukryta wiadomość", JOptionPane.INFORMATION_MESSAGE);
+                        view.toFront();
+                    }
                 }
             }
         }
         );
     }
 
+    private boolean isEmptyOrNull(String text) {
+        return text == null || text.isEmpty();
+    }
 }
