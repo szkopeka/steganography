@@ -8,6 +8,7 @@ import javax.swing.*;
 public class SteganographyModel {
 
     public static final String outputFormat = "png";
+    private int imageLength;
 
     public boolean encodeImage(String inPath, String inFilename, String inExt, String outPath, String outFilename, String message) {
         BufferedImage originalImage = readImage(makePathToImage(inPath, inFilename, inExt));
@@ -21,8 +22,13 @@ public class SteganographyModel {
             return null;
         }
         byte[] img = convertImageToBytes(image);
-        byte[] text = decodeText(img);
-        return (new String(text));
+        try {
+            byte[] text = decodeText(img);
+            return (new String(text));
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+
     }
 
     private String makePathToImage(String path, String filename, String ext) {
@@ -39,6 +45,7 @@ public class SteganographyModel {
             encodeText(img, msg, 32);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Niestety, tekst okazał się zbyt długi!", "Błąd!", JOptionPane.ERROR_MESSAGE);
+            return null;
         }
         return image;
     }
@@ -79,7 +86,8 @@ public class SteganographyModel {
     }
 
     private byte[] encodeText(byte[] image, byte[] aditionalText, int offset) throws IllegalAccessException {
-        if (aditionalText.length + offset > image.length) {
+        
+        if (aditionalText.length + offset > image.length / 8) {
             throw new IllegalArgumentException("Plik jest zbyt mały, aby ukryć w nim zadaną ilość tekstu!");
         }
         for (int i = 0; i < aditionalText.length; i++) {
@@ -98,9 +106,11 @@ public class SteganographyModel {
         for (int i = 0; i < 32; ++i) {
             length = (length << 1) | (image[i] & 1);
         }
+        if (length < 1) {
+            throw new IllegalArgumentException("Błąd odczytu długości zakodowanego tekstu");
+        }
 
         byte[] result = new byte[length];
-
         for (int b = 0; b < result.length; ++b) {
             for (int i = 0; i < 8; ++i, ++offset) {
                 result[b] = (byte) ((result[b] << 1) | (image[offset] & 1));

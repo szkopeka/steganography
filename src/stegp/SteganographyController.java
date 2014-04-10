@@ -1,6 +1,12 @@
 package stegp;
 
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -9,6 +15,7 @@ public class SteganographyController {
     private SteganographyModel model;
     private SteganographyView view;
     private String outputFilename, inputPath, textToHide;
+    private int maxChars;
 
     public SteganographyController(final SteganographyModel model, final SteganographyView view) {
         this.model = model;
@@ -25,7 +32,8 @@ public class SteganographyController {
         view.addInsertTextButtonListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 view.manageFrameAccessibility(false);
-                textToHide = JOptionPane.showInputDialog(view, "Proszę wpisać tekst do ukrycia w obrazku");
+                textToHide = JOptionPane.showInputDialog(view, "Proszę wpisać tekst do ukrycia w obrazku\n"
+                        + "Maksymalna liczba znaków możliwa do zakodowania = " + maxChars);
                 view.manageFrameAccessibility(true);
                 view.toFront();
             }
@@ -40,6 +48,12 @@ public class SteganographyController {
                 int returnVal = chooser.showOpenDialog(null);
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     inputPath = chooser.getSelectedFile().getAbsolutePath();
+                    try {
+                        BufferedImage img = ImageIO.read(chooser.getSelectedFile());
+                        maxChars = (img.getHeight() * img.getWidth() - 32) / 8;
+                    } catch (IOException ex) {
+                        Logger.getLogger(SteganographyController.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 } else {
                     inputPath = null;
                 }
@@ -87,17 +101,16 @@ public class SteganographyController {
                 if (view.getEncodeRadioButton().isSelected()) {
                     if (model.encodeImage(inPath, inFilename, inExt, outPath, outFilename, textToHide)) {
                         JOptionPane.showMessageDialog(view, "Zapis wiadomości zakończony powodzeniem!", "OK!", JOptionPane.INFORMATION_MESSAGE);
-                        inputPath = null;
-                        outputFilename = null;
-                        textToHide = null;
-                        view.toFront();
                     }
+                    view.toFront();
                 } else {
                     String decryptedText = model.decodeImage(inPath, inFilename);
                     if (decryptedText != null && !decryptedText.isEmpty()) {
-                        JOptionPane.showMessageDialog(view, decryptedText, "Ukryta wiadomość", JOptionPane.INFORMATION_MESSAGE);
-                        view.toFront();
+                        view.makeTextFrame(decryptedText);
+                    } else {
+                        JOptionPane.showMessageDialog(view, "Odczyt nieudany(brak ukrytej wiadomości?)");
                     }
+                    view.toFront();
                 }
             }
         }

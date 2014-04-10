@@ -113,6 +113,25 @@ public class SteganographyView extends JFrame {
         codeButton.addActionListener(a);
     }
 
+    void makeTextFrame(String text) {
+        JDialog frame = new JDialog(this, "Ukryta wiadomość");
+        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+        frame.setSize(dim.width / 2, dim.height / 2);
+        frame.setLocation(dim.width / 4, dim.height / 4);
+        frame.setResizable(false);
+
+        JTextArea textArea = new JTextArea(text);
+        JScrollPane scroll = new JScrollPane(textArea);
+        scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        textArea.setEditable(false);
+        textArea.setLineWrap(true);
+        frame.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
+        frame.add(scroll);
+        frame.setVisible(true);
+   
+    }
+
     public static void main(String[] args) {
         SteganographyModel model = new SteganographyModel();
         SteganographyView view = new SteganographyView();
