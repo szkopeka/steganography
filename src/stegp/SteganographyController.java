@@ -45,7 +45,8 @@ public class SteganographyController {
                 FileNameExtensionFilter filter = new FileNameExtensionFilter(
                         "JPG & PNG Images", "jpg", "png");
                 chooser.setFileFilter(filter);
-                int returnVal = chooser.showOpenDialog(null);
+                int returnVal = chooser.showOpenDialog(view);
+                view.toFront();
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     inputPath = chooser.getSelectedFile().getAbsolutePath();
                     try {
@@ -58,7 +59,6 @@ public class SteganographyController {
                     inputPath = null;
                 }
                 view.manageFrameAccessibility(true);
-                view.toFront();
             }
         });
         view.addEncodeRadioButtonListener(new ActionListener() {
